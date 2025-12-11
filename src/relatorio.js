@@ -91,22 +91,25 @@ async function carregarVendas() {
       });
       
       mensagem.textContent = '';
+
+      dadosCupom = {
+        data: dataSelecionada.value.split('-').reverse().join('/'),
+        itens: vendas.map(v => ({
+          valor: v.valor.toFixed(2).replace('.', ','),
+          tipo: v.tipo,
+          hora: v.hora
+        })),
+        totalEntradas: somaEntradas.toFixed(2).replace('.', ','),
+        totalSaidas: somaSaidas.toFixed(2).replace('.', ','),
+        totalGeral: resultado_final.toFixed(2).replace('.', ',')
+      };
+      
     } else {
       mensagem.textContent = resultado.mensagem || 'Erro ao carregar vendas';
       mensagem.className = 'mensagem erro';
     }
 
-    dadosCupom = {
-      data: dataSelecionada.value.split('-').reverse().join('/'),
-      itens: vendas.map(v => ({
-        valor: v.valor.toFixed(2).replace('.', ','),
-        tipo: v.tipo,
-        hora: v.hora
-      })),
-      totalEntradas: somaEntradas.toFixed(2).replace('.', ','),
-      totalSaidas: somaSaidas.toFixed(2).replace('.', ','),
-      totalGeral: resultado_final.toFixed(2).replace('.', ',')
-    };
+    
 
   } catch (erro) {
     mensagem.textContent = 'Erro: ' + erro.message;
