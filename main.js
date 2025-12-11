@@ -1,51 +1,78 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
+const initSqlJs = require('sql.js');
 
 let mainWindow;
 let db;
+let SQL;
 let usuarioLogado = null;
 
-// Inicializar banco de dados
-function inicializarBanco() {
-  const dbPath = path.join(__dirname, 'database', 'banco.sqlite');
-  
-  // Criar diretório se não existir
-  if (!fs.existsSync(path.join(__dirname, 'database'))) {
-    fs.mkdirSync(path.join(__dirname, 'database'), { recursive: true });
+// ======================================================
+//  Inicializar banco com SQL.js
+// ======================================================
+async function inicializarBanco() {
+  SQL = await initSqlJs({
+    locateFile: file => path.join(__dirname, 'node_modules/sql.js/dist/', file)
+  });
+
+  const dbDir = path.join(__dirname, 'database');
+  const dbPath = path.join(dbDir, 'banco.sqlite');
+
+  // cria pasta /database se não existir
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
   }
-  
-  db = new Database(dbPath);
-  
-  // Criar tabelas
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS usuarios (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      usuario TEXT NOT NULL UNIQUE,
-      senha_hash TEXT NOT NULL
-    );
-    
-    CREATE TABLE IF NOT EXISTS vendas (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      valor REAL NOT NULL,
-      tipo TEXT NOT NULL,
-      data TEXT NOT NULL,
-      hora TEXT NOT NULL
-    );
-  `);
-  
-  // Criar usuário padrão se não existir
-  try {
+
+  if (fs.existsSync(dbPath)) {
+    // carrega banco existente
+    const fileBuffer = fs.readFileSync(dbPath);
+    db = new SQL.Database(fileBuffer);
+  } else {
+    // cria banco novo
+    db = new SQL.Database();
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario TEXT NOT NULL UNIQUE,
+        senha_hash TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS vendas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        valor REAL NOT NULL,
+        tipo TEXT NOT NULL,
+        data TEXT NOT NULL,
+        hora TEXT NOT NULL
+      );
+    `);
+
+    salvarBanco();
+  }
+
+  // cria usuário admin se não existir
+  const result = db.exec("SELECT * FROM usuarios WHERE usuario='admin'");
+  if (result.length === 0) {
     const senhaHash = bcrypt.hashSync('123', 10);
-    db.prepare('INSERT INTO usuarios (usuario, senha_hash) VALUES (?, ?)').run('admin', senhaHash);
-  } catch (e) {
-    // Usuário já existe
+    db.run(`INSERT INTO usuarios (usuario, senha_hash) VALUES ('admin', '${senhaHash}')`);
+    salvarBanco();
   }
 }
 
-// Criar janela principal
+// ======================================================
+//  Salvar banco no arquivo
+// ======================================================
+function salvarBanco() {
+  const data = db.export(); 
+  const buffer = Buffer.from(data);
+  fs.writeFileSync(path.join(__dirname, "database", "banco.sqlite"), buffer);
+}
+
+// ======================================================
+//  Criar janela principal
+// ======================================================
 function criarJanela() {
   mainWindow = new BrowserWindow({
     width: 600,
@@ -57,92 +84,87 @@ function criarJanela() {
       nodeIntegration: false
     }
   });
-  
+
   mainWindow.loadFile(path.join(__dirname, 'src', 'login.html'));
-  mainWindow.webContents.openDevTools(); // Remover em produção
+  // mainWindow.webContents.openDevTools(); // descomente para debug
 }
 
-// Evento de app pronto
-app.on('ready', () => {
-  inicializarBanco();
+app.on('ready', async () => {
+  await inicializarBanco();
   criarJanela();
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (mainWindow === null) {
-    criarJanela();
-  }
-});
-
-// IPC: Login
+// ======================================================
+//  IPC: Login
+// ======================================================
 ipcMain.handle('login', async (event, usuario, senha) => {
   try {
-    const user = db.prepare('SELECT * FROM usuarios WHERE usuario = ?').get(usuario);
-    
-    if (!user) {
-      return { sucesso: false, mensagem: 'Usuário não encontrado' };
-    }
-    
-    const senhaValida = bcrypt.compareSync(senha, user.senha_hash);
-    
-    if (!senhaValida) {
+    const res = db.exec(`SELECT * FROM usuarios WHERE usuario='${usuario}'`);
+
+    if (!res.length) return { sucesso: false, mensagem: "Usuário não encontrado" };
+
+    const row = res[0].values[0];
+    const senhaHash = row[2];
+
+    if (!bcrypt.compareSync(senha, senhaHash)) {
       return { sucesso: false, mensagem: 'Senha incorreta' };
     }
-    
+
     usuarioLogado = usuario;
-    return { sucesso: true, mensagem: 'Login realizado com sucesso' };
+    return { sucesso: true };
   } catch (erro) {
-    return { sucesso: false, mensagem: 'Erro ao fazer login: ' + erro.message };
+    return { sucesso: false, mensagem: erro.message };
   }
 });
 
-// IPC: Verificar se está logado
-ipcMain.handle('verificar-login', async (event) => {
-  return usuarioLogado !== null;
-});
-
-// IPC: Logout
-ipcMain.handle('logout', async (event) => {
-  usuarioLogado = null;
-  return true;
-});
-
-// IPC: Salvar venda
+// ======================================================
+//  IPC: Salvar venda
+// ======================================================
 ipcMain.handle('salvar-venda', async (event, valor, tipo, data, hora) => {
-  if (!usuarioLogado) {
-    return { sucesso: false, mensagem: 'Não autorizado' };
-  }
-  
+  if (!usuarioLogado) return { sucesso: false, mensagem: "Não autorizado" };
+
   try {
-    db.prepare('INSERT INTO vendas (valor, tipo, data, hora) VALUES (?, ?, ?, ?)').run(valor, tipo, data, hora);
-    return { sucesso: true, mensagem: 'Venda salva com sucesso' };
-  } catch (erro) {
-    return { sucesso: false, mensagem: 'Erro ao salvar venda: ' + erro.message };
+    db.run(`
+      INSERT INTO vendas (valor, tipo, data, hora)
+      VALUES (${valor}, '${tipo}', '${data}', '${hora}')
+    `);
+
+    salvarBanco();
+    return { sucesso: true };
+  } catch (e) {
+    return { sucesso: false, mensagem: e.message };
   }
 });
 
-// IPC: Obter vendas do dia
+// ======================================================
+//  Obter vendas do dia
+// ======================================================
 ipcMain.handle('obter-vendas-dia', async (event, data) => {
-  if (!usuarioLogado) {
-    return { sucesso: false, vendas: [] };
-  }
-  
+  if (!usuarioLogado) return { sucesso: false, vendas: [] };
+
   try {
-    const vendas = db.prepare('SELECT * FROM vendas WHERE data = ? ORDER BY hora DESC').all(data);
+    const res = db.exec(`
+      SELECT * FROM vendas WHERE data='${data}' ORDER BY hora DESC
+    `);
+
+    const vendas = res.length ? res[0].values.map(v => ({
+      id: v[0],
+      valor: v[1],
+      tipo: v[2],
+      data: v[3],
+      hora: v[4]
+    })) : [];
+
     return { sucesso: true, vendas };
-  } catch (erro) {
-    return { sucesso: false, vendas: [], mensagem: erro.message };
+  } catch (e) {
+    return { sucesso: false, vendas: [], mensagem: e.message };
   }
 });
 
-// IPC: Navegar para página
+// ======================================================
+//  Navegar entre telas
+// ======================================================
 ipcMain.handle('navegar', async (event, pagina) => {
-  mainWindow.loadFile(path.join(__dirname, 'src', pagina + '.html'));
+  await mainWindow.loadFile(path.join(__dirname, 'src', pagina + '.html'));
   return true;
 });

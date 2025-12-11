@@ -9,7 +9,7 @@
     "build": "electron-builder"
   },
   "dependencies": {
-    "better-sqlite3": "^9.0.0",
+    "sql.js": "^1.10.2",
     "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
