@@ -415,6 +415,10 @@ body {
 
 .tabela-container {
   overflow-x: auto;
+  max-height: 450px;  
+  overflow-y: auto;   
+  overflow-x: hidden; 
+  border: 1px solid #ccc;
 }
 
 .tabela-vendas {
