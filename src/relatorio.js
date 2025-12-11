@@ -82,8 +82,8 @@ async function carregarVendas() {
         linha.className = venda.tipo;
         
         linha.innerHTML = `
+        <td>${venda.tipo === 'entrada' ? '✓ Entrada' : '✗ Saída'}</td>
           <td>${venda.hora}</td>
-          <td>${venda.tipo === 'entrada' ? '✓ Entrada' : '✗ Saída'}</td>
           <td>R$ ${venda.valor.toFixed(2).replace('.', ',')}</td>
         `;
         
@@ -92,18 +92,20 @@ async function carregarVendas() {
       
       mensagem.textContent = '';
 
+
       dadosCupom = {
-        data: dataSelecionada.value.split('-').reverse().join('/'),
-        itens: vendas.map(v => ({
-          valor: v.valor.toFixed(2).replace('.', ','),
-          tipo: v.tipo,
-          hora: v.hora
-        })),
-        totalEntradas: somaEntradas.toFixed(2).replace('.', ','),
-        totalSaidas: somaSaidas.toFixed(2).replace('.', ','),
-        totalGeral: resultado_final.toFixed(2).replace('.', ',')
-      };
-      
+      data: dataSelecionada.value.split('-').reverse().join('/'),
+      itens: vendas.map(v => ({
+        tipo: v.tipo,
+        hora: v.hora,
+        valor: v.valor.toFixed(2).replace('.', ',')
+      })),
+      totalEntradas: somaEntradas.toFixed(2).replace('.', ','),
+      totalSaidas: somaSaidas.toFixed(2).replace('.', ','),
+      totalGeral: resultado_final.toFixed(2).replace('.', ',')
+    };
+
+
     } else {
       mensagem.textContent = resultado.mensagem || 'Erro ao carregar vendas';
       mensagem.className = 'mensagem erro';

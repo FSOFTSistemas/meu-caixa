@@ -103,8 +103,8 @@
         div.className = "item";
         div.innerHTML = `
           <span>${i.tipo === 'entrada' ? '+' : '-'}</span>
-          <span>R$ ${i.valor}</span>
           <span>${i.hora}</span>
+          <span>R$ ${i.valor}</span>
         `;
         lista.appendChild(div);
       });
