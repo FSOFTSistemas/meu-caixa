@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+
+<title>Cupom</title>
+
+<style>
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  body {
+    width: 80mm;
+    margin: 0;
+    padding: 5px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .linha {
+    width: 100%;
+    border-bottom: 1px dashed #000;
+    margin: 4px 0;
+  }
+
+  .centro {
+    text-align: center;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 0;
+  }
+
+  .totais {
+    margin-top: 10px;
+    border-top: 1px dashed #000;
+    padding-top: 10px;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+</style>
+
+</head>
+
+<body>
+
+  <!-- Cabeçalho -->
+  <div class="centro bold">MEU CAIXA - FSOFT</div>
+  <div class="centro">Relatório do Dia</div>
+  <div class="linha"></div>
+
+  <!-- Data -->
+  <div class="centro" id="dataCupom"></div>
+
+  <div class="linha"></div>
+
+  <!-- Itens -->
+  <div id="listaItens"></div>
+
+  <div class="linha"></div>
+
+  <!-- Totais -->
+  <div class="totais">
+    <div class="item">
+      <span>Entradas:</span>
+      <span id="totalEntradas">0,00</span>
+    </div>
+
+    <div class="item">
+      <span>Saídas:</span>
+      <span id="totalSaidas">0,00</span>
+    </div>
+
+    <div class="item bold">
+      <span>Total do Dia:</span>
+      <span id="totalGeral">0,00</span>
+    </div>
+  </div>
+
+  <div class="linha"></div>
+
+  <!-- Rodapé -->
+  <div class="centro">Obrigado!</div>
+  <div class="centro">FSOFT Sistemas</div>
+
+  <script>
+    // Estes dados você vai enviar via window.electron ou localStorage
+    const dados = JSON.parse(localStorage.getItem("cupomDados") || "{}");
+
+    document.getElementById("dataCupom").textContent = dados.data || "";
+
+    const lista = document.getElementById("listaItens");
+
+    if (dados.itens) {
+      dados.itens.forEach(i => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <span>${i.tipo === 'entrada' ? '+' : '-'}</span>
+          <span>R$ ${i.valor}</span>
+          <span>${i.hora}</span>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    document.getElementById("totalEntradas").textContent = dados.totalEntradas;
+    document.getElementById("totalSaidas").textContent = dados.totalSaidas;
+    document.getElementById("totalGeral").textContent = dados.totalGeral;
+
+    window.onload = () => {
+      window.print();
+    };
+  </script>
+
+</body>
+</html>

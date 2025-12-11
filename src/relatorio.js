@@ -5,6 +5,7 @@ const totalEntradas = document.getElementById('totalEntradas');
 const totalSaidas = document.getElementById('totalSaidas');
 const totalResultado = document.getElementById('totalResultado');
 const mensagem = document.getElementById('mensagem');
+let dadosCupom = null;
 
 // Verificar login ao carregar
 window.addEventListener('load', async () => {
@@ -94,6 +95,19 @@ async function carregarVendas() {
       mensagem.textContent = resultado.mensagem || 'Erro ao carregar vendas';
       mensagem.className = 'mensagem erro';
     }
+
+    dadosCupom = {
+      data: dataSelecionada.value.split('-').reverse().join('/'),
+      itens: vendas.map(v => ({
+        valor: v.valor.toFixed(2).replace('.', ','),
+        tipo: v.tipo,
+        hora: v.hora
+      })),
+      totalEntradas: somaEntradas.toFixed(2).replace('.', ','),
+      totalSaidas: somaSaidas.toFixed(2).replace('.', ','),
+      totalGeral: resultado_final.toFixed(2).replace('.', ',')
+    };
+
   } catch (erro) {
     mensagem.textContent = 'Erro: ' + erro.message;
     mensagem.className = 'mensagem erro';
@@ -102,7 +116,16 @@ async function carregarVendas() {
 
 // Botão Imprimir
 document.getElementById('btnImprimir').addEventListener('click', () => {
-  window.print();
+  if (!dadosCupom) {
+    alert("Carregue uma data antes de imprimir.");
+    return;
+  }
+
+  // Enviar dados para o cupom.html
+  localStorage.setItem("cupomDados", JSON.stringify(dadosCupom));
+
+  // Abrir o cupom
+  window.open("cupom.html", "_blank");
 });
 
 // Botão Voltar
