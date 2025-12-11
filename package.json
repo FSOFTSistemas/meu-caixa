@@ -1,0 +1,37 @@
+{
+  "name": "meu-caixa",
+  "version": "1.0.0",
+  "description": "Sistema de fluxo de caixa local com Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.0.0",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "electron": "31.0.2",
+    "electron-builder": "24.9.1"
+  },
+  "build": {
+    "appId": "com.fssoft.meucaixa",
+    "productName": "Meu Caixa",
+    "directories": {
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": ["portable", "nsis"],
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "category": "public.app-category.finance",
+      "icon": "build/icon.icns"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Caixa - Relatório</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Relatório Diário</h1>
+      <button id="btnVoltar" class="btn-voltar">Voltar</button>
+    </div>
+    
+    <div class="relatorio-container">
+      <div class="seletor-data">
+        <label for="dataSelecionada">Selecione a data:</label>
+        <input type="date" id="dataSelecionada">
+        <button id="btnCarregar" class="btn-carregar">Carregar</button>
+      </div>
+      
+      <div class="resumo">
+        <div class="resumo-item entrada">
+          <span class="label">Entradas:</span>
+          <span class="valor" id="totalEntradas">R$ 0,00</span>
+        </div>
+        <div class="resumo-item saida">
+          <span class="label">Saídas:</span>
+          <span class="valor" id="totalSaidas">R$ 0,00</span>
+        </div>
+        <div class="resumo-item resultado">
+          <span class="label">Resultado:</span>
+          <span class="valor" id="totalResultado">R$ 0,00</span>
+        </div>
+      </div>
+      
+      <div class="tabela-container">
+        <table id="tabelaVendas" class="tabela-vendas">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody id="corpoTabela">
+            <tr>
+              <td colspan="3" class="sem-dados">Nenhuma venda registrada</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="botoes-relatorio">
+        <button id="btnImprimir" class="btn-imprimir">Imprimir</button>
+      </div>
+    </div>
+    
+    <div id="mensagem" class="mensagem"></div>
+  </div>
+  
+  <script src="relatorio.js"></script>
+</body>
+</html>

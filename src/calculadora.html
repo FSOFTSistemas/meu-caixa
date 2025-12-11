@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Caixa - Calculadora</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Calculadora de Vendas</h1>
+      <button id="btnLogout" class="btn-logout">Sair</button>
+    </div>
+    
+    <div class="calculadora">
+      <div class="display" id="display">0</div>
+      
+      <div class="tipo-selector">
+        <button id="btnEntrada" class="btn-tipo entrada ativo">ENTRADA</button>
+        <button id="btnSaida" class="btn-tipo saida">SAÍDA</button>
+      </div>
+      
+      <div class="botoes-grid">
+        <button class="btn-numero" data-numero="7">7</button>
+        <button class="btn-numero" data-numero="8">8</button>
+        <button class="btn-numero" data-numero="9">9</button>
+        
+        <button class="btn-numero" data-numero="4">4</button>
+        <button class="btn-numero" data-numero="5">5</button>
+        <button class="btn-numero" data-numero="6">6</button>
+        
+        <button class="btn-numero" data-numero="1">1</button>
+        <button class="btn-numero" data-numero="2">2</button>
+        <button class="btn-numero" data-numero="3">3</button>
+        
+        <button class="btn-numero" data-numero="0">0</button>
+        <button class="btn-numero" data-numero=".">.</button>
+        <button id="btnLimpar" class="btn-limpar">C</button>
+      </div>
+      
+      <div class="botoes-acao">
+        <button id="btnOK" class="btn-ok">OK</button>
+        <button id="btnRelatorio" class="btn-relatorio">Relatório</button>
+      </div>
+    </div>
+    
+    <div id="mensagem" class="mensagem"></div>
+  </div>
+  
+  <script src="calculadora.js"></script>
+</body>
+</html>
