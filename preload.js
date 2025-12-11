@@ -18,5 +18,11 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("obter-vendas-dia", data),
 
     navegar: (pagina) =>
-        ipcRenderer.invoke("navegar", pagina)
+        ipcRenderer.invoke("navegar", pagina),
+
+
+  removerLancamento: (id) => ipcRenderer.send("remover-lancamento", id),
+  
+  lancamentoRemovido: (callback) => ipcRenderer.on("lancamento-removido", callback)
+
 });

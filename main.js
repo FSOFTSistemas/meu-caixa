@@ -155,6 +155,20 @@ ipcMain.handle('salvar-venda', async (event, valor, tipo, data, hora) => {
   }
 });
 
+ipcMain.on("remover-lancamento", (event, id) => {
+  console.log("🗑 Pedido para remover ID:", id);
+
+  try {
+    db.run(`DELETE FROM vendas WHERE id=${id}`);
+    salvarBanco();
+
+    console.log("✅ Removido com sucesso");
+    event.reply("lancamento-removido", { sucesso: true });
+  } catch (err) {
+    console.error("❌ Erro ao remover:", err.message);
+    event.reply("lancamento-removido", { sucesso: false, erro: err.message });
+  }
+});
 // ======================================================
 //  Obter vendas do dia
 // ======================================================

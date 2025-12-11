@@ -85,6 +85,7 @@ async function carregarVendas() {
         <td>${venda.tipo === 'entrada' ? '✓ Entrada' : '✗ Saída'}</td>
           <td>${venda.hora}</td>
           <td>R$ ${venda.valor.toFixed(2).replace('.', ',')}</td>
+          <td><button class="btn-remover" data-id="${venda.id}">X</button></td>
         `;
         
         corpoTabela.appendChild(linha);
@@ -92,6 +93,15 @@ async function carregarVendas() {
       
       mensagem.textContent = '';
 
+      document.querySelectorAll(".btn-remover").forEach(btn => {
+        btn.addEventListener("click", () => {
+          let id = btn.getAttribute("data-id");
+      
+          if (!confirm("Deseja remover este lançamento?")) return;
+      
+          window.electronAPI.removerLancamento(id);
+        });
+      });
 
       dadosCupom = {
       data: dataSelecionada.value.split('-').reverse().join('/'),
@@ -136,4 +146,15 @@ document.getElementById('btnImprimir').addEventListener('click', () => {
 // Botão Voltar
 document.getElementById('btnVoltar').addEventListener('click', () => {
   window.api.navegar('calculadora');
+});
+
+
+window.api.lancamentoRemovido((event, resposta) => {
+  console.log("Resposta do remover-lancamento:", resposta);
+
+  if (resposta.sucesso) {
+    carregarVendas(); // 🔄 recarrega a lista da tela
+  } else {
+    alert("Erro ao remover: " + resposta.erro);
+  }
 });

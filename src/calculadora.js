@@ -16,9 +16,9 @@ window.addEventListener('load', async () => {
 // ----------------------------
 function formatarMoeda(valor) {
   const numero = Number(valor) / 100;
-  return numero.toLocaleString("pt-BR", { 
-    style: "currency", 
-    currency: "BRL" 
+  return numero.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
   });
 }
 
@@ -136,6 +136,21 @@ document.getElementById('btnLogout')?.addEventListener('click', async () => {
 // SUPORTE AO TECLADO FÍSICO
 // ----------------------------
 document.addEventListener("keydown", (e) => {
+  // Atalho: "+" para Entrada, "-" para Saída
+  if (e.key === "+" || e.key === "=") {   // alguns teclados enviam "=" no lugar de "+"
+    tipoAtual = "entrada";
+    document.getElementById("btnEntrada").classList.add("ativo");
+    document.getElementById("btnSaida").classList.remove("ativo");
+    return; // evita cair nos outros atalhos
+  }
+
+  if (e.key === "-") {
+    tipoAtual = "saida";
+    document.getElementById("btnSaida").classList.add("ativo");
+    document.getElementById("btnEntrada").classList.remove("ativo");
+    return;
+  }
+
   if (e.key >= "0" && e.key <= "9") {
     if (valorDigitado.length < 12) {
       valorDigitado += e.key;
