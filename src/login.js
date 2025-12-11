@@ -27,3 +27,7 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
     mensagem.className = 'mensagem erro';
   }
 });
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("usuario").focus();
+});
