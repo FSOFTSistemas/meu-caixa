@@ -65,7 +65,7 @@ async function inicializarBanco() {
 //  Salvar banco no arquivo
 // ======================================================
 function salvarBanco() {
-  const data = db.export(); 
+  const data = db.export();
   const buffer = Buffer.from(data);
   fs.writeFileSync(path.join(__dirname, "database", "banco.sqlite"), buffer);
 }
@@ -115,6 +115,25 @@ ipcMain.handle('login', async (event, usuario, senha) => {
   } catch (erro) {
     return { sucesso: false, mensagem: erro.message };
   }
+});
+
+// ======================================================
+//  IPC: Verificar login
+// ======================================================
+ipcMain.handle('verificar-login', async () => {
+  try {
+    return usuarioLogado !== null;
+  } catch {
+    return false;
+  }
+});
+
+// ======================================================
+//  IPC: Logout
+// ======================================================
+ipcMain.handle('logout', async () => {
+  usuarioLogado = null;
+  return true;
 });
 
 // ======================================================

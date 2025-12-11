@@ -1,4 +1,4 @@
-let displayValue = '0';
+let valorDigitado = "";         // Armazena apenas números
 let tipoAtual = 'entrada';
 const display = document.getElementById('display');
 const mensagem = document.getElementById('mensagem');
@@ -11,35 +11,60 @@ window.addEventListener('load', async () => {
   }
 });
 
+// ----------------------------
+// Função para formatar moeda
+// ----------------------------
+function formatarMoeda(valor) {
+  const numero = Number(valor) / 100;
+  return numero.toLocaleString("pt-BR", { 
+    style: "currency", 
+    currency: "BRL" 
+  });
+}
+
+function atualizarDisplay() {
+  if (valorDigitado === "") {
+    display.textContent = "R$ 0,00";
+  } else {
+    display.textContent = formatarMoeda(valorDigitado);
+  }
+
+  // Remove animação para reiniciar
+  display.classList.remove("display-animacao");
+
+  // Reativa animação (pequeno delay de 1ms para reinicializar)
+  setTimeout(() => {
+    display.classList.add("display-animacao");
+  }, 1);
+}
+
+// ----------------------------
 // Botões de números
+// ----------------------------
 document.querySelectorAll('.btn-numero').forEach(btn => {
   btn.addEventListener('click', () => {
     const numero = btn.dataset.numero;
-    
-    if (numero === '.') {
-      if (!displayValue.includes('.')) {
-        displayValue += numero;
-      }
-    } else {
-      if (displayValue === '0') {
-        displayValue = numero;
-      } else {
-        displayValue += numero;
-      }
-    }
-    
+
+    if (numero === ".") return; // ignora ponto
+    if (valorDigitado.length >= 12) return; // limite
+
+    valorDigitado += numero;
     atualizarDisplay();
   });
 });
 
-// Botão limpar
+// ----------------------------
+// LIMPAR
+// ----------------------------
 document.getElementById('btnLimpar').addEventListener('click', () => {
-  displayValue = '0';
+  valorDigitado = "";
   atualizarDisplay();
   mensagem.textContent = '';
 });
 
-// Seletor de tipo
+// ----------------------------
+// ENTRADA / SAÍDA
+// ----------------------------
 document.getElementById('btnEntrada').addEventListener('click', () => {
   tipoAtual = 'entrada';
   document.getElementById('btnEntrada').classList.add('ativo');
@@ -52,58 +77,87 @@ document.getElementById('btnSaida').addEventListener('click', () => {
   document.getElementById('btnEntrada').classList.remove('ativo');
 });
 
-// Botão OK - Salvar venda
+// ----------------------------
+// SALVAR (OK)
+// ----------------------------
 document.getElementById('btnOK').addEventListener('click', async () => {
-  const valor = parseFloat(displayValue);
-  
-  if (isNaN(valor) || valor <= 0) {
-    mensagem.textContent = 'Digite um valor válido!';
-    mensagem.className = 'mensagem erro';
+  if (valorDigitado === "") {
+    mensagem.textContent = "Digite um valor válido!";
+    mensagem.className = "mensagem erro";
     return;
   }
-  
+
+  const valor = Number(valorDigitado) / 100;
+
+  if (valor <= 0) {
+    mensagem.textContent = "Valor inválido!";
+    mensagem.className = "mensagem erro";
+    return;
+  }
+
   const agora = new Date();
-  const data = agora.toISOString().split('T')[0]; // YYYY-MM-DD
-  const hora = agora.toTimeString().split(' ')[0]; // HH:MM:SS
-  
+  const data = agora.toISOString().split("T")[0];
+  const hora = agora.toTimeString().split(" ")[0];
+
   try {
     const resultado = await window.api.salvarVenda(valor, tipoAtual, data, hora);
-    
+
     if (resultado.sucesso) {
-      mensagem.textContent = `Venda de R$ ${valor.toFixed(2)} (${tipoAtual}) salva com sucesso!`;
-      mensagem.className = 'mensagem sucesso';
-      
-      displayValue = '0';
+      mensagem.textContent = `Valor ${formatarMoeda(valorDigitado)} (${tipoAtual}) salvo!`;
+      mensagem.className = "mensagem sucesso";
+
+      valorDigitado = "";
       atualizarDisplay();
-      
-      setTimeout(() => {
-        mensagem.textContent = '';
-      }, 3000);
+
+      setTimeout(() => mensagem.textContent = "", 3000);
     } else {
       mensagem.textContent = resultado.mensagem;
-      mensagem.className = 'mensagem erro';
+      mensagem.className = "mensagem erro";
     }
   } catch (erro) {
-    mensagem.textContent = 'Erro: ' + erro.message;
-    mensagem.className = 'mensagem erro';
+    mensagem.textContent = "Erro: " + erro.message;
+    mensagem.className = "mensagem erro";
   }
 });
 
-// Botão Relatório
-document.getElementById('btnRelatorio').addEventListener('click', () => {
+// ----------------------------
+// NAVEGAR RELATÓRIO & LOGOUT
+// ----------------------------
+document.getElementById('btnRelatorio')?.addEventListener('click', () => {
   window.api.navegar('relatorio');
 });
 
-// Botão Logout
-document.getElementById('btnLogout').addEventListener('click', async () => {
+document.getElementById('btnLogout')?.addEventListener('click', async () => {
   await window.api.logout();
   window.api.navegar('login');
 });
 
-// Atualizar display
-function atualizarDisplay() {
-  display.textContent = displayValue;
-}
+// ----------------------------
+// SUPORTE AO TECLADO FÍSICO
+// ----------------------------
+document.addEventListener("keydown", (e) => {
+  if (e.key >= "0" && e.key <= "9") {
+    if (valorDigitado.length < 12) {
+      valorDigitado += e.key;
+      atualizarDisplay();
+    }
+  }
 
-// Inicializar
+  if (e.key === "Backspace") {
+    valorDigitado = valorDigitado.slice(0, -1);
+    atualizarDisplay();
+  }
+
+  if (e.key === "Enter") {
+    document.getElementById("btnOK").click();
+  }
+
+  if (e.key === "Escape") {
+    valorDigitado = "";
+    atualizarDisplay();
+  }
+});
+
+// ----------------------------
 atualizarDisplay();
+// ----------------------------
