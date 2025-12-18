@@ -17,7 +17,7 @@ async function inicializarBanco() {
     locateFile: file => path.join(__dirname, 'node_modules/sql.js/dist/', file)
   });
 
-  const dbDir = path.join(__dirname, 'database');
+  const dbDir = path.join(app.getPath('userData'), 'database');
   const dbPath = path.join(dbDir, 'banco.sqlite');
 
   // cria pasta /database se não existir
@@ -44,6 +44,7 @@ async function inicializarBanco() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         valor REAL NOT NULL,
         tipo TEXT NOT NULL,
+        forma_pagamento TEXT NOT NULL,
         data TEXT NOT NULL,
         hora TEXT NOT NULL
       );
@@ -67,7 +68,13 @@ async function inicializarBanco() {
 function salvarBanco() {
   const data = db.export();
   const buffer = Buffer.from(data);
-  fs.writeFileSync(path.join(__dirname, "database", "banco.sqlite"), buffer);
+    const dbPath = path.join(
+    app.getPath('userData'),
+    'database',
+    'banco.sqlite'
+  );
+
+  fs.writeFileSync(dbPath, buffer);
 }
 
 // ======================================================
@@ -139,13 +146,13 @@ ipcMain.handle('logout', async () => {
 // ======================================================
 //  IPC: Salvar venda
 // ======================================================
-ipcMain.handle('salvar-venda', async (event, valor, tipo, data, hora) => {
+ipcMain.handle('salvar-venda', async (event, valor, tipo, formaPagamentoAtual , data, hora) => {  
   if (!usuarioLogado) return { sucesso: false, mensagem: "Não autorizado" };
 
   try {
     db.run(`
-      INSERT INTO vendas (valor, tipo, data, hora)
-      VALUES (${valor}, '${tipo}', '${data}', '${hora}')
+      INSERT INTO vendas (valor, tipo, forma_pagamento, data, hora)
+      VALUES (${valor}, '${tipo}', '${formaPagamentoAtual}', '${data}', '${hora}')
     `);
 
     salvarBanco();
@@ -184,8 +191,9 @@ ipcMain.handle('obter-vendas-dia', async (event, data) => {
       id: v[0],
       valor: v[1],
       tipo: v[2],
-      data: v[3],
-      hora: v[4]
+      forma_pagamento: v[3],
+      data: v[4],
+      hora: v[5]
     })) : [];
 
     return { sucesso: true, vendas };
