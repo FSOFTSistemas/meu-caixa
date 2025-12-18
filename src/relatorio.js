@@ -83,6 +83,7 @@ async function carregarVendas() {
         
         linha.innerHTML = `
         <td>${venda.tipo === 'entrada' ? '✓ Entrada' : '✗ Saída'}</td>
+        <td>${venda.forma_pagamento === 'pix' ? 'Pix' : ''}</td>
           <td>${venda.hora}</td>
           <td>R$ ${venda.valor.toFixed(2).replace('.', ',')}</td>
           <td><button class="btn-remover" data-id="${venda.id}">X</button></td>
@@ -107,6 +108,7 @@ async function carregarVendas() {
       data: dataSelecionada.value.split('-').reverse().join('/'),
       itens: vendas.map(v => ({
         tipo: v.tipo,
+        forma_pagamento: v.forma_pagamento,
         hora: v.hora,
         valor: v.valor.toFixed(2).replace('.', ',')
       })),

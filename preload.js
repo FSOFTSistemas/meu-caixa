@@ -11,8 +11,8 @@ contextBridge.exposeInMainWorld("api", {
     logout: () =>
         ipcRenderer.invoke("logout"),
 
-    salvarVenda: (valor, tipo, data, hora) =>
-        ipcRenderer.invoke("salvar-venda", valor, tipo, data, hora),
+    salvarVenda: (valor, tipo, formaPagamentoAtual , data, hora) =>
+        ipcRenderer.invoke("salvar-venda", valor, tipo, formaPagamentoAtual ,data, hora),
 
     obterVendasDia: (data) =>
         ipcRenderer.invoke("obter-vendas-dia", data),
