@@ -1,57 +1,58 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<title>Cupom</title>
+  <title>Cupom</title>
 
-<style>
-  @page {
-    size: 80mm auto;
-    margin: 0;
-    margin-right: 8px;
-  }
+  <style>
+    @page {
+      size: 80mm auto;
+      margin: 0;
+      margin-right: 8px;
+    }
 
-  body {
-    width: 80mm;
-    margin: 0;
-    padding: 5px;
-    font-family: monospace;
-    font-size: 12px;
-    font-weight: 700;
-  }
+    body {
+      width: 80mm;
+      margin: 0;
+      padding: 5px;
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
 
-  .linha {
-    width: 100%;
-    border-bottom: 1px dashed #000;
-    margin: 4px 0;
-  }
+    .linha {
+      width: 100%;
+      border-bottom: 1px dashed #000;
+      margin: 4px 0;
+    }
 
-  .centro {
-    text-align: center;
-  }
+    .centro {
+      text-align: center;
+    }
 
-  .item {
-    display: flex;
-    justify-content: space-between;
-    margin: 2px 0;
-    letter-spacing: 0.5px;
-  }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      margin: 2px 0;
+      letter-spacing: 0.5px;
+    }
 
-  .item span {
-    font-weight: 700; /* 🟢 Itens bem visíveis */
-  }
+    .item span {
+      font-weight: 700;
+    }
 
-  .totais {
-    margin-top: 10px;
-    border-top: 1px dashed #000;
-    padding-top: 10px;
-  }
+    .totais {
+      margin-top: 10px;
+      border-top: 1px dashed #000;
+      padding-top: 10px;
+    }
 
-  .bold {
-    font-weight: 900; /* mais forte ainda */
-  }
-</style>
+    .bold {
+      font-weight: 900;
+    }
+  </style>
 
 </head>
 
@@ -109,7 +110,10 @@
         const div = document.createElement("div");
         div.className = "item";
         div.innerHTML = `
-          <span>${i.tipo === 'entrada' ? '+' : '-'}</span>
+          <span>
+            ${i.tipo === 'entrada' ? '+' : '-'}
+            ${i.forma_pagamento === 'pix' ? '(Pix)' : ''}
+          </span>
           <span>${i.hora}</span>
           <span>R$ ${i.valor}</span>
         `;
