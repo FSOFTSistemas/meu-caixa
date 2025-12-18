@@ -1,5 +1,6 @@
 let valorDigitado = "";         // Armazena apenas números
 let tipoAtual = 'entrada';
+let formaPagamentoAtual
 const display = document.getElementById('display');
 const mensagem = document.getElementById('mensagem');
 
@@ -67,16 +68,29 @@ document.getElementById('btnLimpar').addEventListener('click', () => {
 // ----------------------------
 document.getElementById('btnEntrada').addEventListener('click', () => {
   tipoAtual = 'entrada';
+  formaPagamentoAtual = null
   document.getElementById('btnEntrada').classList.add('ativo');
   document.getElementById('btnSaida').classList.remove('ativo');
+  document.getElementById('btnPix').classList.remove('ativo');
 });
 
 document.getElementById('btnSaida').addEventListener('click', () => {
   tipoAtual = 'saida';
+  formaPagamentoAtual = null
+
   document.getElementById('btnSaida').classList.add('ativo');
   document.getElementById('btnEntrada').classList.remove('ativo');
+  document.getElementById('btnPix').classList.remove('ativo');
 });
 
+document.getElementById('btnPix').addEventListener('click', () => {
+  tipoAtual = 'entrada'
+  formaPagamentoAtual = 'pix';
+
+  document.getElementById('btnPix').classList.add('ativo')
+  document.getElementById('btnSaida').classList.remove('ativo')
+  document.getElementById('btnEntrada').classList.remove('ativo');
+});
 // ----------------------------
 // SALVAR (OK)
 // ----------------------------
@@ -100,7 +114,16 @@ document.getElementById('btnOK').addEventListener('click', async () => {
   const hora = agora.toTimeString().split(" ")[0];
 
   try {
-    const resultado = await window.api.salvarVenda(valor, tipoAtual, data, hora);
+
+    if (tipoAtual === 'entrada' && !formaPagamentoAtual) {
+      formaPagamentoAtual = 'dinheiro';
+    }
+
+    if (tipoAtual === 'saida') {
+      formaPagamentoAtual = 'saida';
+    }
+
+    const resultado = await window.api.salvarVenda(valor, tipoAtual, formaPagamentoAtual, data, hora);
 
     if (resultado.sucesso) {
       mensagem.textContent = `Valor ${formatarMoeda(valorDigitado)} (${tipoAtual}) salvo!`;
