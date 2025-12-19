@@ -6,7 +6,6 @@ const totalSaidas = document.getElementById('totalSaidas');
 const totalResultado = document.getElementById('totalResultado');
 const mensagem = document.getElementById('mensagem');
 let dadosCupom = null;
-
 // Verificar login ao carregar
 window.addEventListener('load', async () => {
   const logado = await window.api.verificarLogin();
@@ -97,33 +96,30 @@ async function carregarVendas() {
       document.querySelectorAll(".btn-remover").forEach(btn => {
         btn.addEventListener("click", () => {
           let id = btn.getAttribute("data-id");
-      
+
           if (!confirm("Deseja remover este lançamento?")) return;
-      
+
           window.electronAPI.removerLancamento(id);
         });
       });
 
       dadosCupom = {
-      data: dataSelecionada.value.split('-').reverse().join('/'),
-      itens: vendas.map(v => ({
-        tipo: v.tipo,
-        forma_pagamento: v.forma_pagamento,
-        hora: v.hora,
-        valor: v.valor.toFixed(2).replace('.', ',')
-      })),
-      totalEntradas: somaEntradas.toFixed(2).replace('.', ','),
-      totalSaidas: somaSaidas.toFixed(2).replace('.', ','),
-      totalGeral: resultado_final.toFixed(2).replace('.', ',')
-    };
-
+        data: dataSelecionada.value.split('-').reverse().join('/'),
+        itens: vendas.map(v => ({
+          tipo: v.tipo,
+          forma_pagamento: v.forma_pagamento,
+          hora: v.hora,
+          valor: v.valor.toFixed(2).replace('.', ',')
+        })),
+        totalEntradas: somaEntradas.toFixed(2).replace('.', ','),
+        totalSaidas: somaSaidas.toFixed(2).replace('.', ','),
+        totalGeral: resultado_final.toFixed(2).replace('.', ',')
+      };
 
     } else {
       mensagem.textContent = resultado.mensagem || 'Erro ao carregar vendas';
       mensagem.className = 'mensagem erro';
     }
-
-    
 
   } catch (erro) {
     mensagem.textContent = 'Erro: ' + erro.message;
@@ -143,6 +139,19 @@ document.getElementById('btnImprimir').addEventListener('click', () => {
 
   // Abrir o cupom
   window.open("cupom.html", "_blank");
+});
+
+document.getElementById('btnImprimirResumo').addEventListener('click', () => {
+  if (!dadosCupom) {
+    alert("Carregue uma data antes de imprimir.");
+    return;
+  }
+
+  // Enviar dados para o cupom.html
+  localStorage.setItem("cupomDados", JSON.stringify(dadosCupom));
+
+  // Abrir o cupom
+  window.open("cupomResumo.html", "_blank");
 });
 
 // Botão Voltar

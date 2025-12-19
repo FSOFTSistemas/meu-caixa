@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cupom Resumo</title>
+
+  <style>
+    @page {
+      size: 80mm auto;
+      margin: 0;
+      margin-right: 8px;
+    }
+
+    body {
+      width: 80mm;
+      margin: 0;
+      padding: 5px;
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .linha {
+      width: 100%;
+      border-bottom: 1px dashed #000;
+      margin: 6px 0;
+    }
+
+    .centro {
+      text-align: center;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+      letter-spacing: 0.5px;
+    }
+
+    .totais {
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+
+    .bold {
+      font-weight: 900;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Cabeçalho -->
+  <div class="centro bold">MEU CAIXA - FSOFT</div>
+  <div class="centro">Resumo do Dia</div>
+
+  <div class="linha"></div>
+
+  <!-- Data -->
+  <div class="centro" id="dataCupom"></div>
+
+  <div class="linha"></div>
+
+  <!-- Totais -->
+  <div class="totais">
+
+    <div class="item">
+      <span>Entradas:</span>
+      <span id="totalEntradas">R$ 0,00</span>
+    </div>
+
+    <div class="item">
+      <span>Saídas:</span>
+      <span id="totalSaidas">R$ 0,00</span>
+    </div>
+
+    <div class="linha"></div>
+
+    <div class="item bold">
+      <span>Total do Dia:</span>
+      <span id="totalGeral">R$ 0,00</span>
+    </div>
+
+  </div>
+
+  <div class="linha"></div>
+
+  <!-- Rodapé -->
+  <div class="centro">Obrigado!</div>
+  <div class="centro">Chapeu de couro</div>
+
+  <script>
+    const dados = JSON.parse(localStorage.getItem("cupomDados") || "{}");
+    document.getElementById("dataCupom").textContent = dados.data || "";
+
+    document.getElementById("totalEntradas").textContent =  dados.totalEntradas;;
+    document.getElementById("totalSaidas").textContent = dados.totalSaidas;
+    document.getElementById("totalGeral").textContent = dados.totalGeral;
+
+    window.onload = () => {
+      window.print();
+    };
+  </script>
+
+</body>
+</html>
