@@ -162,6 +162,7 @@ document.addEventListener("keydown", (e) => {
   // Atalho: "+" para Entrada, "-" para Saída
   if (e.key === "+" || e.key === "=") {   // alguns teclados enviam "=" no lugar de "+"
     tipoAtual = "entrada";
+    formaPagamentoAtual = null;
     document.getElementById("btnEntrada").classList.add("ativo");
     document.getElementById("btnSaida").classList.remove("ativo");
     return; // evita cair nos outros atalhos
@@ -169,6 +170,7 @@ document.addEventListener("keydown", (e) => {
 
   if (e.key === "-") {
     tipoAtual = "saida";
+    formaPagamentoAtual = null;
     document.getElementById("btnSaida").classList.add("ativo");
     document.getElementById("btnEntrada").classList.remove("ativo");
     return;
