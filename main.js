@@ -44,9 +44,9 @@ async function inicializarBanco() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         valor REAL NOT NULL,
         tipo TEXT NOT NULL,
-        forma_pagamento TEXT NOT NULL,
         data TEXT NOT NULL,
-        hora TEXT NOT NULL
+        hora TEXT NOT NULL,
+        forma_pagamento TEXT NOT NULL
       );
     `);
 
@@ -68,7 +68,7 @@ async function inicializarBanco() {
 function salvarBanco() {
   const data = db.export();
   const buffer = Buffer.from(data);
-    const dbPath = path.join(
+  const dbPath = path.join(
     app.getPath('userData'),
     'database',
     'banco.sqlite'
@@ -146,14 +146,15 @@ ipcMain.handle('logout', async () => {
 // ======================================================
 //  IPC: Salvar venda
 // ======================================================
-ipcMain.handle('salvar-venda', async (event, valor, tipo, formaPagamentoAtual , data, hora) => {  
+ipcMain.handle('salvar-venda', async (event, valor, tipo, formaPagamentoAtual, data, hora) => {
   if (!usuarioLogado) return { sucesso: false, mensagem: "Não autorizado" };
 
   try {
+    const forma = formaPagamentoAtual ? formaPagamentoAtual : '';
     db.run(`
-      INSERT INTO vendas (valor, tipo, forma_pagamento, data, hora)
-      VALUES (${valor}, '${tipo}', '${formaPagamentoAtual}', '${data}', '${hora}')
-    `);
+  INSERT INTO vendas (valor, tipo, data, hora, forma_pagamento)
+  VALUES (${valor}, '${tipo}', '${data}', '${hora}', '${forma}')
+`);
 
     salvarBanco();
     return { sucesso: true };
@@ -191,9 +192,9 @@ ipcMain.handle('obter-vendas-dia', async (event, data) => {
       id: v[0],
       valor: v[1],
       tipo: v[2],
-      forma_pagamento: v[3],
-      data: v[4],
-      hora: v[5]
+      data: v[3],
+      hora: v[4],
+      forma_pagamento: v[5]
     })) : [];
 
     return { sucesso: true, vendas };
