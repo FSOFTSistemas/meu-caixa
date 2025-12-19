@@ -17,7 +17,7 @@ async function inicializarBanco() {
     locateFile: file => path.join(__dirname, 'node_modules/sql.js/dist/', file)
   });
 
-  const dbDir = path.join(__dirname, 'database');
+  const dbDir = path.join(app.getPath('userData'), 'database');
   const dbPath = path.join(dbDir, 'banco.sqlite');
 
   // cria pasta /database se não existir
@@ -45,7 +45,8 @@ async function inicializarBanco() {
         valor REAL NOT NULL,
         tipo TEXT NOT NULL,
         data TEXT NOT NULL,
-        hora TEXT NOT NULL
+        hora TEXT NOT NULL,
+        forma_pagamento TEXT NOT NULL
       );
     `);
 
@@ -67,7 +68,13 @@ async function inicializarBanco() {
 function salvarBanco() {
   const data = db.export();
   const buffer = Buffer.from(data);
-  fs.writeFileSync(path.join(__dirname, "database", "banco.sqlite"), buffer);
+  const dbPath = path.join(
+    app.getPath('userData'),
+    'database',
+    'banco.sqlite'
+  );
+
+  fs.writeFileSync(dbPath, buffer);
 }
 
 // ======================================================
@@ -139,14 +146,15 @@ ipcMain.handle('logout', async () => {
 // ======================================================
 //  IPC: Salvar venda
 // ======================================================
-ipcMain.handle('salvar-venda', async (event, valor, tipo, data, hora) => {
+ipcMain.handle('salvar-venda', async (event, valor, tipo, formaPagamentoAtual, data, hora) => {
   if (!usuarioLogado) return { sucesso: false, mensagem: "Não autorizado" };
 
   try {
+    const forma = formaPagamentoAtual ? formaPagamentoAtual : '';
     db.run(`
-      INSERT INTO vendas (valor, tipo, data, hora)
-      VALUES (${valor}, '${tipo}', '${data}', '${hora}')
-    `);
+  INSERT INTO vendas (valor, tipo, data, hora, forma_pagamento)
+  VALUES (${valor}, '${tipo}', '${data}', '${hora}', '${forma}')
+`);
 
     salvarBanco();
     return { sucesso: true };
@@ -185,7 +193,8 @@ ipcMain.handle('obter-vendas-dia', async (event, data) => {
       valor: v[1],
       tipo: v[2],
       data: v[3],
-      hora: v[4]
+      hora: v[4],
+      forma_pagamento: v[5]
     })) : [];
 
     return { sucesso: true, vendas };
