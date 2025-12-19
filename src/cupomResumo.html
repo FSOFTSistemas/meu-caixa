@@ -70,6 +70,11 @@
     </div>
 
     <div class="item">
+      <span>Entradas(Pix):</span>
+      <span id="totalEntradasPix">R$ 0,00</span>
+    </div>
+
+    <div class="item">
       <span>Saídas:</span>
       <span id="totalSaidas">R$ 0,00</span>
     </div>
@@ -93,7 +98,8 @@
     const dados = JSON.parse(localStorage.getItem("cupomDados") || "{}");
     document.getElementById("dataCupom").textContent = dados.data || "";
 
-    document.getElementById("totalEntradas").textContent =  dados.totalEntradas;;
+    document.getElementById("totalEntradas").textContent =  dados.totalEntradas;
+    document.getElementById("totalEntradasPix").textContent =  dados.totalEntradasPix;
     document.getElementById("totalSaidas").textContent = dados.totalSaidas;
     document.getElementById("totalGeral").textContent = dados.totalGeral;
 
